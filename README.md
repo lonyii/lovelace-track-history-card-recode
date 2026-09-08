@@ -19,7 +19,7 @@
 
 ## 🛠️ 基础配置示例
 ```yaml
-type: custom:track-history-card-recode
+type: custom:track-history-card
 title: 车辆轨迹监控
 theme_mode: auto
 x: 28.68
