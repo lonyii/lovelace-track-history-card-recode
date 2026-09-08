@@ -1,7 +1,7 @@
 {
   "name": "Track History Card Recode",
   "render_readme": true,
-  "country": "CN",
   "type": "dashboard",
-  "filename": "track‑history‑card-recode.js"
+  "filename": "track-history-card-recode.js",
+  "content_in_root": true
 }
