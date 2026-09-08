@@ -1880,27 +1880,58 @@ class LovelaceTrackHistoryCard extends HTMLElement {
       duration: 0.3,
     });
 
-    // 动画参数
-    const totalDuration = 30000; // 总时长30秒
+    // 动画参数：按定位点速度驱动动画进度，不再限定固定总时长
     const frameInterval = 50; // 每50ms更新一帧
-    const totalFrames = totalDuration / frameInterval;
-    
-    // 如果是继续，使用之前保存的帧位置
-    let currentFrame = this._animationCurrentFrame || 0;
+    // 时间加速倍率：把真实运动时间压缩为可观看的动画时长
+    // 值越大动画越快（30 表示 30 倍速，约 15 分钟真实轨迹→30 秒动画）
+    const SPEED_MULT = 30;
 
     const self = this;
+
+    // 预计算每段距离与累计距离（km）
+    const cumDist = [0];
+    for (let i = 1; i < points.length; i++) {
+      cumDist.push(cumDist[i - 1] + self._haversine(points[i - 1], points[i]));
+    }
+    const totalDist = cumDist[cumDist.length - 1];
+
+    // 无速度数据时使用的恒定速度（km/h）：取有效速度的平均值，若全无则回退固定值
+    const validSpeeds = points.filter(p => p.speed != null && p.speed > 0);
+    const DEFAULT_SPEED_KMH = validSpeeds.length > 0
+      ? (validSpeeds.reduce((s, p) => s + p.speed, 0) / validSpeeds.length) * 1.609344
+      : 30;
+
+    // 暂停后继续使用之前保存的已行驶距离
+    let traveledDist = this._animationTraveledDist || 0;
 
     this._animationTimer = setInterval(() => {
       if (!self._animationRunning || self._animationPaused) {
         return;
       }
 
-      currentFrame++;
-      self._animationCurrentFrame = currentFrame;
-      const progress = currentFrame / totalFrames;
+      // 定位当前所在段
+      let currentIndex = 0;
+      while (currentIndex < cumDist.length - 2 && traveledDist >= cumDist[currentIndex + 1]) {
+        currentIndex++;
+      }
+      const curP1 = points[currentIndex];
 
-      if (progress >= 1) {
+      // 当前段有效速度（km/h）：有速度按速度，无速度用恒定默认值
+      const curSpeedMph = curP1.speed;
+      const segSpeedKmh = (curSpeedMph != null && curSpeedMph > 0)
+        ? curSpeedMph * 1.609344
+        : DEFAULT_SPEED_KMH;
+
+      // 按当前段速度推进距离（km）
+      const advanceKm = segSpeedKmh * (frameInterval / 3600000) * SPEED_MULT;
+      traveledDist += advanceKm;
+      self._animationTraveledDist = traveledDist;
+
+      if (traveledDist >= totalDist || totalDist <= 0) {
         const lastPoint = points[points.length - 1];
+        if (self._animationMarker) {
+          self._animationMarker.setLatLng([lastPoint.lat, lastPoint.lng]);
+        }
         const endMarker = self._createAnimationPinMarker(L, lastPoint, '#C62828', self._t('end'));
         if (endMarker) {
           endMarker.addTo(self._animationLayer);
@@ -1910,14 +1941,15 @@ class LovelaceTrackHistoryCard extends HTMLElement {
         return;
       }
 
-      // 计算当前应该在的位置
-      const totalPoints = points.length;
-      const floatIndex = progress * (totalPoints - 1);
-      const currentIndex = Math.floor(floatIndex);
-      const segmentProgress = floatIndex - currentIndex;
-
+      // 推进后重新定位所在段
+      while (currentIndex < cumDist.length - 2 && traveledDist >= cumDist[currentIndex + 1]) {
+        currentIndex++;
+      }
       const p1 = points[currentIndex];
-      const p2 = points[Math.min(currentIndex + 1, totalPoints - 1)];
+      const p2 = points[Math.min(currentIndex + 1, points.length - 1)];
+      const segStart = cumDist[currentIndex];
+      const segLen = (cumDist[currentIndex + 1] - segStart) || 1e-9;
+      const segmentProgress = Math.min(Math.max((traveledDist - segStart) / segLen, 0), 1);
 
       // 插值计算当前位置
       const currentLat = p1.lat + (p2.lat - p1.lat) * segmentProgress;
@@ -1926,18 +1958,8 @@ class LovelaceTrackHistoryCard extends HTMLElement {
       // 计算当前朝向
       const heading = self._bearing(p1.lat, p1.lng, p2.lat, p2.lng);
 
-      // 计算当前速度（km/h）
-      const speedMph = p1.speed;
-      const speedKmh = speedMph != null ? (speedMph * 1.609344).toFixed(1) : '0.0';
-
-      // 计算已行驶里程
-      let traveledDist = 0;
-      for (let i = 1; i <= currentIndex; i++) {
-        traveledDist += self._haversine(points[i - 1], points[i]);
-      }
-      if (segmentProgress > 0 && currentIndex < totalPoints - 1) {
-        traveledDist += self._haversine(p1, { lat: currentLat, lng: currentLng });
-      }
+      // 当前速度（km/h）
+      const speedKmh = segSpeedKmh.toFixed(1);
 
       // 获取当前点的时间
       let timeStr = '--:--';
@@ -1954,7 +1976,7 @@ class LovelaceTrackHistoryCard extends HTMLElement {
 
       self._animationMarker.setLatLng([currentLat, currentLng]);
 
-      // 绘制轨迹段
+      // 绘制已走过的轨迹段
       while (self._animationSegments.length < currentIndex) {
         const i = self._animationSegments.length;
         const segP1 = points[i];
@@ -2120,7 +2142,7 @@ class LovelaceTrackHistoryCard extends HTMLElement {
   _stopAnimation() {
     this._animationRunning = false;
     this._animationPaused = false;
-    this._animationCurrentFrame = 0;
+    this._animationTraveledDist = 0;
     this._animationStarted = false;
 
     // 清理定时器
