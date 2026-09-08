@@ -1,6 +1,6 @@
 # Track History Card Recode
 
-> 基于 [lovelace-track-history-card](https://github.com/custom-cards/lovelace-track-history-card) 修改重制的 Home Assistant Lovelace 卡片。在地图上展示 `device_tracker` 设备的历史轨迹、起点/终点/停留点、时间线与统计信息，底图使用 CARTO 瓦片并自动跟随 HA 主题（亮/暗）切换。
+> 基于 [lovelace-track-history-card](https://github.com/sergon2000/lovelace-track-history-card) 修改重制的 Home Assistant Lovelace 卡片。在地图上展示 `device_tracker` 设备的历史轨迹、起点/终点/停留点、时间线与统计信息，底图使用 CARTO 瓦片并自动跟随 HA 主题（亮/暗）切换。
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Dashboard-31ADF2.svg)](https://github.com/hacs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
