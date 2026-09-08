@@ -1,10 +1,4 @@
-# Track History Card Recode \- 基于原版 lovelace\-track\-history\-card 的修改重制版
-
-# \[README\.md\]\(README\.md\)
-
-```markdown
-# Track History Card Recode
-[![Image](tos-cn-i-a9rns2rl98/rc/online_import/c4586762c9cf41d4b592b18ef5d4b3ba)](https://hacs.xyz)
+# Track History Card Recode 
 
 > 基于原版 lovelace‑track‑history‑card 修改重制，支持 Carto 明暗底图自动跟随 Home Assistant 主题切换，用于在地图上展示设备轨迹与历史位置。
 
@@ -18,12 +12,7 @@
 
 ## 📦 安装方式（HACS 一键安装）
 1. 打开 HACS → 右上角菜单 → **Custom repositories**
-2. 填入仓库地址：
-```
-
-[https://github\.com/lonyii/lovelace\-track\-history\-card\-recode](https://github.com/lonyii/lovelace-track-history-card-recode)
-
-```Plain Text
+2. 填入仓库地址：```https://github.com/lonyii/lovelace-track-history-card-recode```
 3. 类别选择：`Dashboard`，点击添加
 4. 在 HACS 搜索 `Track History Card Recode`，点击 `INSTALL`
 5. 重启 Home Assistant，刷新 Lovelace 前端页面
