@@ -1,18 +1,25 @@
 /**
- * lovelace-track-history-card
- * Lovelace card for Home Assistant — shows device_tracker movement on a map for a selected day.
- * Install via HACS → Frontend → Custom repositories.
+ * track-history-card-recode (v1.0.3)
+ * Lovelace card for Home Assistant — shows device_tracker movement on a map
+ * for a selected day, with start/end/stay points, timeline stats and replay.
+ * Based on lovelace-track-history-card (sergon2000), recoded by lonyii.
+ * Install via HACS → Custom repositories (Dashboard).
  *
  * Config example:
  *   type: custom:lovelace-track-history-card
- *   title: "Movimientos"
+ *   title: 轨迹历史
  *   entities:
- *     - device_tracker.john_phone
- *     - device_tracker.jane_iphone
- *   default_entity: device_tracker.john_phone
+ *     - device_tracker.my_phone
+ *   default_entity: device_tracker.my_phone
+ *   theme: system        # system (default) | light | dark
  *   units: metric        # metric (default) or imperial
  *   show_arrows: true    # direction arrows on the path (default true)
  *   arrow_count: 30      # number of arrows when enabled (default 30)
+ *   show_timeline: true  # timeline & stats (default false)
+ *   reverse_geocode: true
+ *   geocode_provider: amap   # amap (default) | bigdatacloud
+ *   amap_key: <your AMap web-service key>   # required for AMap geocoding
+ *   carto_key: <your CARTO key>             # optional, basemap auth
  */
 
 const LEAFLET_VERSION = '1.9.4';

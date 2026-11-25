@@ -246,12 +246,22 @@ A：不会写入代码仓库。Key 仅保存在你自己的仪表盘配置中，
 
 ## 📝 更新日志
 
-### v1.0.0
-- 初始发布
-- 新增卡片配置项 `amap_key` 与 `carto_key`
-- 仪表盘可视化编辑器增加 2 个 Key 输入框
-- 修正高德 GPS(WGS84) → GCJ02 坐标分割顺序 BUG
+### v1.0.3
+- 轨迹回放动画重做：改为按定位点速度 / 距离驱动（约 30 倍速），支持暂停后续播
 - README 完整重写，文档与代码实际行为对齐
+
+### v1.0.2
+- 移除原版内置的作者个人高德 (AMap) 与 CARTO Key，改为卡片配置项 `amap_key` / `carto_key`
+- 仪表盘可视化编辑器新增 2 个 Key 输入框
+- 修正高德 GPS(WGS84) → GCJ02 坐标转换请求的 URL 拼接
+- 更换 `carto_key` 后强制重建底图瓦片层
+
+### v1.0.1
+- 修正 `hacs.json` 中 `filename` 的非法 Unicode 连字符（导致 HACS 安装异常）
+- 补充 `content_in_root: true`，移除 `country` 地区限定
+
+### v1.0.0
+- 初始发布：基于 lovelace-track-history-card 修改重制
 
 ## 📄 License
 
